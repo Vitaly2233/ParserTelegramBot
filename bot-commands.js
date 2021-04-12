@@ -1,7 +1,10 @@
-import TelegramBot from "node-telegram-bot-api";
 let bot;
-export function botCommands(token, con) {
-	bot = new TelegramBot(token, { polling: true });
+let con;
+//import { link } from "./set-connections.js";
+
+export function setCommands() {
+	bot = link.bot;
+	con = link.connection;
 	bot.on("message", (msg) => {
 		console.log(msg.from.username, " Said: ", msg.text);
 	});
@@ -40,6 +43,7 @@ export function botCommands(token, con) {
 			(err, result) => {
 				if (result[0] !== undefined) {
 					//if payment is done, go to user interface and speak with bot
+					userInterface();
 				} else {
 					//add new user bot to user database
 					con.query(
@@ -60,7 +64,7 @@ export function botCommands(token, con) {
 							} else if (msg.text !== "/commands") {
 								bot.sendMessage(
 									ChatId,
-									"Вы не оплатили тариф бота, откройте список команд, и выберите нужную команду"
+									"Вы не оплатили тариф бота, откройте список команд, и выберите нужную опцию"
 								);
 							}
 						}
@@ -108,6 +112,17 @@ export function botCommands(token, con) {
 		}
 		if (query.data === "yes") {
 			//To done payment
+
+			//FOR TESTING
+			con.query(
+				`INSERT INTO paid VALUES ('${query.from.username}', '0000')`,
+				(err, res) => {
+					if (err) bot.sendMessage(query.from.id, "Can't add");
+					else bot.sendMessage(query.from.id, "Added");
+				}
+			);
 		}
 	});
+
+	function userInterface() {}
 }
