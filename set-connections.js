@@ -1,8 +1,7 @@
 import mysql from "mysql2/promise";
 import { Telegraf } from "telegraf";
-import util from "util";
 let link = {};
-//creatin connection
+//creating connection
 export async function makeCon() {
 	console.log("Entered function");
 	link.DBcon = await mysql.createConnection({
@@ -13,12 +12,11 @@ export async function makeCon() {
 	});
 	link.bot = await setBot();
 }
-export async function getCon() {
-	return Promise.resolve(link);
-}
 //Getting token from database and connecting bot
 async function setBot() {
 	let res = await link.DBcon.query("SELECT TOKEN FROM token WHERE id = 2");
-	let bot = new Telegraf(res[0][0].TOKEN);
+	let bot = new Telegraf(res[0][0].TOKEN, { polling: { interval: 1000 } });
+	await bot.launch();
 	return Promise.resolve(bot);
 }
+export { link };

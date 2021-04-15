@@ -1,5 +1,6 @@
-//for for project
+import { makeCon, link } from "./set-connections.js";
 import { setCommands } from "./bot-commands.js";
-import { makeCon, getCon } from "./set-connections.js";
 
 await makeCon();
+
+setCommands();
