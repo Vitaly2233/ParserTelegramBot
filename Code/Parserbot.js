@@ -10,7 +10,6 @@ export const parse = async (urll) => {
 	const $ = await getHTML(urll);
 	let username, id, description, raiting, price;
 	let word = urll.split("/");
-	console.log(con);
 	id = word[word.length - 2];
 	// con.query(
 	// 	`SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ${id}`,

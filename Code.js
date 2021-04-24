@@ -1,6 +1,9 @@
-import { makeCon, link } from "./set-connections.js";
-import { setCommands } from "./bot-commands.js";
+const link = require("./Connections/set-connections")
+const setCommands = require("./Commands/NewUser")
+//function for starting asynchronous functions from other files
+async function a() {
+  await link.set;
+  await setCommands();
 
-await makeCon();
-
-setCommands();
+}
+a()

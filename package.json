@@ -1,0 +1,20 @@
+{
+	"name": "nodeproject",
+	"version": "1.0.0",
+	"description": "node js, node",
+	"main": "Code.js",
+	"scripts": {
+		"start": "nodemon Code.js"
+	},
+	"keywords": [],
+	"author": "Vitaly",
+	"license": "ISC",
+	"dependencies": {
+		"cheerio": "^1.0.0-rc.5",
+		"mysql2": "^2.2.5",
+		"telegraf": "^4.3.0"
+	},
+	"devDependencies": {
+		"axios": "^0.21.1"
+	}
+}
