@@ -10,7 +10,7 @@ async function makeCon() {
 		password: "1234",
 		database: "parser",
 	});
-	console.log("parser's connected to db");
+	console.log("Parser's connected");
 	return link;
 }
 
