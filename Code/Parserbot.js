@@ -35,12 +35,12 @@ class parser {
 	async addToDb(url) {
 		const offerId = url.split("/")[4].slice(9);
 		// check if table with offer's id exists
-		let findOffer = `SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ${offerId}`
+		let findOffer = `SELECT * FROM lotsdata WHERE offerId = ${offerId}`
 		const [res, _def] = await con.query(findOffer);
 		if (res.length === 0) {
 			const getHTML = async (url) => {
 				const {data} = await axios.get(url);
-				return cheerio.load(data);
+				return cheerio.load(data, );
 			}
 			let $ = await getHTML(url);
 			const createPriceTable = `CREATE TABLE ${offerId} (
@@ -50,20 +50,22 @@ class parser {
 			//await con.query(createPriceTable);
 
 			const bot = require("../Connections/set-connections").connections.bot
-			const insertNewLot = ``;
-
-			console.log($.html())
-
-			// await bot.telegram.sendMessage(575360642, res)
-
+			const description = $('.param-item div').eq(2).text();
+			const userProfile = $('.media-user-name a').attr('href');
+			const userHTML = await getHTML(userProfile);
+			// finding the lot suits user's link
+			const linkCandidate = userHTML('.offer-tc-container a')
+			linkCandidate.each(async (i, elem) => {
+				let lotLink = linkCandidate.eq(i).attr('href');
+				// links are same
+				if (lotLink === url) {
+					const price = linkCandidate.eq(i).find('.tc-price').text().trim();
+					const sqlAddLot = `INSERT INTO lotsdata VALUES('${url}', '${description}', '${offerId}')`;
+					await con.query(sqlAddLot);
+					console.log("added lot")
+				}
+			})
 		}
-		// con.query()
-		// const getHTML = async (url) => {
-		// 	const {data} = await axios.get(url);
-		// 	return cheerio.load(data);
-		// }
-		// const $ = await getHTML(url);
-		// console.log($)
 	}
 }
 
