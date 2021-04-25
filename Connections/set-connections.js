@@ -11,6 +11,7 @@ async function makeCon() {
   });
   link.bot = await setBot();
   console.log("Everything's connected");
+  return Promise.resolve(link)
 }
 
 //Getting token from database and connecting bot
@@ -23,4 +24,4 @@ async function setBot() {
   return Promise.resolve(bot);
 }
 module.exports.connections = link;
-module.exports.set = makeCon();
+module.exports.set = makeCon;
