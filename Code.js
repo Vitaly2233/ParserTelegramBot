@@ -11,7 +11,7 @@ async function a() {
 	await setActionsForNew();
 	await setInterface();
 	await setParser.setCon();
-	await setParser.addToDb("https://funpay.ru/lots/offer?id=5264482");
+	// await setParser.addUserToDb('https://funpay.ru/users/1335251/');
 }
 
 a()

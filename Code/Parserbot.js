@@ -27,59 +27,50 @@ function here(urll) {
 
 let con;
 
+async function getHTML(url) {
+	const {data} = await axios.get(url);
+	return cheerio.load(data);
+}
+
 class parser {
 	async setCon() {
 		con = await parserDatabase()
 	}
-
-	async addToDb(url) {
-		const offerId = url.split("/")[4].slice(9);
-		// check if table with offer's id exists
-		let findOffer = `SELECT * FROM lotsdata WHERE offerId = ${offerId}`
-		const [res, _def] = await con.query(findOffer);
-		if (res.length === 0) {
-			const getHTML = async (url) => {
-				const {data} = await axios.get(url);
-				return cheerio.load(data, );
-			}
-			let $ = await getHTML(url);
-			const createPriceTable = `CREATE TABLE ${offerId} (
-				price VARCHAR(15),
-				date DATETIME(14)
-			)`
-			//await con.query(createPriceTable);
-
-			const bot = require("../Connections/set-connections").connections.bot
-			const description = $('.param-item div').eq(2).text();
-			const userProfile = $('.media-user-name a').attr('href');
-			const userHTML = await getHTML(userProfile);
-			// finding the lot suits user's link
-			const linkCandidate = userHTML('.offer-tc-container a')
-			linkCandidate.each(async (i, elem) => {
-				let lotLink = linkCandidate.eq(i).attr('href');
-				// links are same
-				if (lotLink === url) {
-					const price = linkCandidate.eq(i).find('.tc-price').text().trim();
-					const sqlAddLot = `INSERT INTO lotsdata VALUES('${url}', '${description}', '${offerId}')`;
-					await con.query(sqlAddLot);
-					console.log("added lot")
-				}
+	// let s = new Date(Date.now()).toLocaleString('ua')
+	// console.log(s)
+	/*
+	Function to add user's data to database about his lots. If there is same data it won't be added
+	 */
+	async addUserToDb(url) {
+		if (!url.includes('https://funpay.ru/users/')) return false;
+		const userId = url.split('/').slice(-2)[0];
+		const [res, _def] = await con.query(`SELECT table_name FROM information_schema.tables WHERE TABLE_NAME = 'user${userId}'`)
+		if (res.length !== 0) return userId
+		let SqlCreateUser = `CREATE TABLE user${userId} (
+LotId VARCHAR(30) NOT NULL UNIQUE,
+ShortDescription VARCHAR(3000) NOT NULL,
+Category VARCHAR(60) NOT NULL,
+CurrentPrice VARCHAR(30),
+Date VARCHAR(50))`;
+		// Create table with users lots
+		await con.query(SqlCreateUser);
+		const $ = await getHTML(url)
+		const offers = $('.offer');
+		offers.each(async (i, elem) => {
+			const category = offers.eq(i).find('.offer-list-title-container').text().trim();
+			const offer = offers.eq(i).find('.tc-item');
+			offer.each(async (j) => {
+				const linkOffer = offer.eq(j).attr('href');
+				const price = offer.eq(j).find('.tc-price').text().trim();
+				const description = offer.eq(j).find('.tc-desc-text').text().trim() || null;
+				const indexId = linkOffer.indexOf('id') + 3;
+				const lotId = linkOffer.slice(indexId)
+				let SqlAddLot = `INSERT INTO user${userId} VALUES ('${lotId}', '${description}', '${category}', '${price}', '${Date.now()}')`
+				await con.query(SqlAddLot)
 			})
-		}
+		})
+		return userId;
 	}
-}
-
-function timeConverter(UNIX_timestamp) {
-	const a = new Date(UNIX_timestamp * 1000);
-	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-	const year = a.getFullYear();
-	const month = months[a.getMonth()];
-	const date = a.getDate();
-	const hour = a.getHours();
-	const min = a.getMinutes();
-	const sec = a.getSeconds();
-	const ttime = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
-	return ttime;
 }
 
 module.exports = new parser();

@@ -1,4 +1,5 @@
 const link = require("../Connections/set-connections")
+const parser = require("../Code/Parserbot");
 
 class Actions {
 	async sendContact(ctx) {
@@ -49,7 +50,24 @@ class Actions {
 	}
 
 	async myLots(ctx) {
+		const {bot: bot, DBcon: con} = link.connections;
+		const SqlGetLots = `SELECT * FROM trackinguser WHERE UserChatId = ${ctx.chat.id}`;
+		const [res, _def] = await con.query(SqlGetLots);
+		if (res.length === 0) {
+			ctx.reply("Кажется у вас нету еще ни одного лота, чтобы добавить новый, введите сылку на пользователя за которым хотите следить правильный формат на подобии 'https://funpay.ru/users/9999999/'")
+		}
+	}
 
+	async addBotuserLot(ctx) {
+		const con = link.connections.DBcon;
+		const url = ctx.message.text;
+		const res = await parser.addUserToDb(url);
+		switch (res) {
+			case false:
+				return ctx.reply("Вы ввели неправильную сылку на пользователя, правильный формат на подобии 'https://funpay.ru/users/9999999/'");
+		}
+		const insertLotToBotuser = `INSERT INTO trackinguser VALUES(${ctx.chat.id}, '${res}')`;
+		await con.query(insertLotToBotuser);
 	}
 }
 
